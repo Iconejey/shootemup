@@ -14,6 +14,20 @@ def getImgDict(path: str) -> dict:
 			d[file] = getImgDict(path + '/' + file)
 	return d
 
+def drawText(surface: pg.surface, text: str, x: int, y: int, fontsize: int = 24, color: list = [255]*4, bold: bool = False, side: str = 'left') -> None:
+	f = pg.font.Font('../Consolas.ttf', fontsize)
+	f.set_bold(bold)
+	t = f.render(text, False, color)
+	w = t.get_size()[0]
+
+	if side == 'left':
+		surface.blit(t, [x, y])
+		
+	if side == 'center':
+		surface.blit(t, [x - w // 2, y])
+		
+	if side == 'right':
+		surface.blit(t, [x - w, y])
 
 if __name__ == "__main__":
 	if 'Windows' in platform.platform():  # car pb de dpi sur windows
@@ -28,14 +42,11 @@ if __name__ == "__main__":
 	SCALE = 3
 
 	images = getImgDict('../img')
-
-	font = pg.font.Font('../Consolas.ttf', 24)
-	bfont = pg.font.Font('../Consolas.ttf', 48)
-	bfont.set_bold(True)
 	
 	player = Ship([SCREEN_W // 2, SCREEN_H // 2], images['player'])
 	stars = [Star(SCREEN_W, SCREEN_H, SCALE) for i in range(100)]
 
+	cursor = 0
 	mode = 'menu'
 	time = 0
 	while mode:
@@ -60,14 +71,19 @@ if __name__ == "__main__":
 		direction = [0, 0]
 
 		if mode == 'menu':
-			shoot_moop = bfont.render('Shoot Moop', False, [255, 255, 255, 128])
-			SCREEN.blit(shoot_moop, [SCREEN_W // 2 - shoot_moop.get_size()[0] // 2, SCREEN_H // 4])
+			if keys_press[pg.K_UP]: cursor = 0 
+			if keys_press[pg.K_DOWN]: cursor = 1
 
-			press_start = font.render('Press [Enter] to start.', False, [255, 255, 255, abs(255 * sin(time/100))])
-			SCREEN.blit(press_start, [SCREEN_W // 2 - press_start.get_size()[0] // 2, SCREEN_H * 3 // 4])
+			drawText(SCREEN, 'Shoot Moop', SCREEN_W // 2, SCREEN_H // 4, 56, [255]*3, True, 'center')
+			drawText(SCREEN, 'Play', SCREEN_W // 2, SCREEN_H * 3 // 4, 36, [128 if cursor else 255]*3, side = 'center')
+			drawText(SCREEN, 'Quit', SCREEN_W // 2, SCREEN_H * 3 // 4 + 40, 36, [255 if cursor else 128]*3, side = 'center')
 
-			if keys_press[pg.K_RETURN]:
-				mode = 'game'
+
+			if keys_press[pg.K_RETURN] or keys_press[pg.K_SPACE]:
+				if cursor:
+					mode = None
+				else:
+					mode = 'game'
 			
 		if mode == 'game':
 			if keys_press[pg.K_w]: direction[1] -= 1
