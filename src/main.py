@@ -59,7 +59,7 @@ if __name__ == "__main__":
 				continue
 
 		keys_press = pg.key.get_pressed()
-		mouse_press = pg.mouse.get_pressed()
+		mouse_press = pg.mouse.get_pressed()[0]
 		mouse_pos = pg.mouse.get_pos()
 
 		SCREEN.fill([0, 0, 0])
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 		direction = [0, 0]
 
 		if mode == 'menu':
-			if keys_press[pg.K_UP]: cursor = 0 
+			if keys_press[pg.K_UP]: cursor = 0
 			if keys_press[pg.K_DOWN]: cursor = 1
 
 			drawText(SCREEN, 'Shoot Moop', SCREEN_W // 2, SCREEN_H // 4, 56, [255]*3, True, 'center')
@@ -92,6 +92,9 @@ if __name__ == "__main__":
 			if keys_press[pg.K_d]: direction[0] += 1
 
 			player.aimTo(*mouse_pos)
+
+			if mouse_press:
+				player.shoot()
 
 		player.move(*direction)
 		player.animate(time)

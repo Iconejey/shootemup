@@ -134,6 +134,9 @@ class Ship(Entity):
             if angle < self.weapon_angle:
                 self.weapon_angle -= 9
 
+    def shoot():
+        ...
+
 class Star:
     def __init__(self, W: int, H: int, scale):
         self.limits = W, H
@@ -151,10 +154,9 @@ class Star:
         self.rand_time += random() * 100
 
     def move(self, time):
-        self.y += self.size
+        self.y += self.size * 2
         if time > self.rand_time:
             self.rand()
-
 
     def show(self, s: pg.Surface):
         pg.draw.rect(s, [200, 200, 200], [self.x, self.y, self.size, self.size])
