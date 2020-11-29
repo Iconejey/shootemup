@@ -3,11 +3,12 @@ from math import atan2, pi
 from random import random
 
 class Entity:
-    def __init__(self, pos: tuple, img_bnk: dict, act_img: str):
+    def __init__(self, pos: tuple, img_bnk: dict, act_img: str, creation_time: int = 0):
         self.x, self.y = pos
         self.img_bnk = img_bnk
         self.act_img = act_img
         self.body_angle = 0
+        self.creation_time = creation_time
 
     @staticmethod
     def rotate(img: pg.Surface, angle: float = 0):
@@ -16,6 +17,9 @@ class Entity:
         new_rect = rot_img.get_rect(center = center)
 
         return rot_img, new_rect
+
+    def animate(self, time: int):
+        ...
 
     def show(self, s: pg.Surface, scale: float = 1):
         self.draw(s, None, self.body_angle, scale)
@@ -38,7 +42,7 @@ class Entity:
 
 class Ship(Entity):
     def __init__(self, pos: tuple, img_bnk: dict):
-        super(Ship, self).__init__(pos, img_bnk, 'ship_0')
+        super(Ship, self).__init__(pos, img_bnk['player'], 'ship_0')
         self.level = 0
         self.level_frame = 0
         self.flame = 0
@@ -134,8 +138,22 @@ class Ship(Entity):
             if angle < self.weapon_angle:
                 self.weapon_angle -= 9
 
-    def shoot():
+    def shoot(self):
         ...
+
+
+class Enemy(Entity):
+    def __init__(self, pos: tuple, img_bnk: dict, _type: str = "small", creation_time: int = 0):
+        super(Enemy, self).__init__(pos, img_bnk[_type + '_enemy'], _type + '_enemy_0', creation_time)
+        self.type = _type
+        self.body_angle = 0
+        self.anim_img = 0
+
+    def animate(self, time: int):
+        self.anim_img = ((time - self.creation_time) // 10) % 4
+
+    def show(self, s: pg.Surface, scale: float = 1):
+        self.draw(s, f'enemy_{self.anim_img}', scale = scale)
 
 class Star:
     def __init__(self, W: int, H: int, scale):

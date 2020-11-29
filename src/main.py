@@ -1,7 +1,8 @@
 import pygame as pg
 import os, platform
-from entities import Entity, Ship, Star
+from entities import Entity, Ship, Star, Enemy
 from math import sin
+from random import random
 
 def getImgDict(path: str) -> dict:
 	d = {}
@@ -29,6 +30,9 @@ def drawText(surface: pg.surface, text: str, x: int, y: int, fontsize: int = 24,
 	if side == 'right':
 		surface.blit(t, [x - w, y])
 
+def randPos(W: int, H: int) -> tuple:
+	return int(random() * W), int(random() * H)
+
 if __name__ == "__main__":
 	if 'Windows' in platform.platform():  # car pb de dpi sur windows
 		from ctypes import windll
@@ -42,13 +46,14 @@ if __name__ == "__main__":
 	SCALE = 3
 
 	images = getImgDict('../img')
+	time = 0
 	
-	player = Ship([SCREEN_W // 2, SCREEN_H // 2], images['player'])
+	player = Ship([SCREEN_W // 2, SCREEN_H // 2], images)
+	enemies = [Enemy(randPos(SCREEN_W, SCREEN_H), images, creation_time = time) for i in range(5)]
 	stars = [Star(SCREEN_W, SCREEN_H, SCALE) for i in range(100)]
 
 	cursor = 0
 	mode = 'menu'
-	time = 0
 	while mode:
 		time += 1
 		clock.tick(30)
@@ -99,5 +104,14 @@ if __name__ == "__main__":
 		player.move(*direction)
 		player.animate(time)
 		player.show(SCREEN, SCALE)
+
+		for enemy in enemies:
+			enemy.show(SCREEN, SCALE)
+
+		# somebody once told me the world is gonna row me.
+		# # jsp
+		# she was looking kind of dumb
+		# with a finger and a thumb
+		# and the shape of an L on her forehead
 		
 		pg.display.update()
