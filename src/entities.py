@@ -1,5 +1,5 @@
 import pygame as pg
-from math import atan2, pi
+from math import atan2, pi, sin, cos
 from random import random
 
 class Entity:
@@ -149,14 +149,26 @@ class Enemy(Entity):
         self.body_angle = 0
         self.anim_img = 0
 
+
     def animate(self, time: int):
-        self.anim_img = ((time - self.creation_time) // 10) % 4
+        t = (time - self.creation_time)
+        self.anim_img = (t // 10) % 4
+        self.body_angle = -2 * t
+
 
     def show(self, s: pg.Surface, scale: float = 1):
-        self.draw(s, f'enemy_{self.anim_img}', scale = scale)
+        self.draw(s, f'enemy_{self.anim_img}', self.body_angle, scale)
+        
+
+    def move(self, time: int, W: int, H: int):
+        t = (time - self.creation_time) / 30
+        self.x = W / 2 + sin(t) * W / 3
+        self.y = (H / 2) - (cos(t/5) * H * 0.6) + (cos(t * 3) * H / 15)
+        
+
 
 class Star:
-    def __init__(self, W: int, H: int, scale):
+    def __init__(self, W: int, H: int, scale: float):
         self.limits = W, H
         self.x = 0
         self.y = 0

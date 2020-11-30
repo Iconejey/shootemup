@@ -1,7 +1,6 @@
 import pygame as pg
-import os, platform
+import os, platform,math
 from entities import Entity, Ship, Star, Enemy
-from math import sin
 from random import random
 
 def getImgDict(path: str) -> dict:
@@ -49,7 +48,7 @@ if __name__ == "__main__":
 	time = 0
 	
 	player = Ship([SCREEN_W // 2, SCREEN_H // 2], images)
-	enemies = [Enemy(randPos(SCREEN_W, SCREEN_H), images, creation_time = time) for i in range(5)]
+	enemies = []
 	stars = [Star(SCREEN_W, SCREEN_H, SCALE) for i in range(100)]
 
 	cursor = 0
@@ -91,6 +90,9 @@ if __name__ == "__main__":
 					mode = 'game'
 			
 		if mode == 'game':
+			if keys_press[pg.K_ESCAPE] :
+					mode = 'menu'
+
 			if keys_press[pg.K_w]: direction[1] -= 1
 			if keys_press[pg.K_s]: direction[1] += 1
 			if keys_press[pg.K_a]: direction[0] -= 1
@@ -101,17 +103,16 @@ if __name__ == "__main__":
 			if mouse_press:
 				player.shoot()
 
+			if time % 50 == 0 and len(enemies) < 6:
+				enemies.append(Enemy((SCREEN_W // 2, -50), images, creation_time = time))
+
+		for enemy in enemies:
+			enemy.move(time, SCREEN_W, SCREEN_H)
+			enemy.animate(time)
+			enemy.show(SCREEN, SCALE)
+
 		player.move(*direction)
 		player.animate(time)
 		player.show(SCREEN, SCALE)
-
-		for enemy in enemies:
-			enemy.show(SCREEN, SCALE)
-
-		# somebody once told me the world is gonna row me.
-		# # jsp
-		# she was looking kind of dumb
-		# with a finger and a thumb
-		# and the shape of an L on her forehead
 		
 		pg.display.update()
