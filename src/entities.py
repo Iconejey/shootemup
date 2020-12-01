@@ -9,6 +9,7 @@ class Entity:
         self.act_img = act_img
         self.body_angle = 0
         self.creation_time = creation_time
+        self.alive = True
 
     @staticmethod
     def rotate(img: pg.Surface, angle: float = 0):
@@ -53,6 +54,8 @@ class Ship(Entity):
         self.dir = [0, -1]
         self.aim = [0, -100]
         self.vel = [0, 0]
+        self.last_shot = 0
+
 
     def animate(self, time: int):
         if time % 3 == 0:
@@ -66,6 +69,7 @@ class Ship(Entity):
         if time > 200 and time % 60 == 0 and self.level < 2:
             self.level += 1
 
+
     def show(self, s: pg.Surface, scale: float = 1):
         self.draw(s, 'ship_' + str(self.level_frame), self.body_angle, scale)
         self.draw(s, 'weapon_' + str(self.level_frame), self.weapon_angle, scale)
@@ -74,6 +78,7 @@ class Ship(Entity):
             self.draw(s, 'flame_R_' + str(self.level * 5 + self.flame), self.body_angle, scale)
         if self.flame_left:
             self.draw(s, 'flame_L_' + str(self.level * 5 + self.flame), self.body_angle, scale)
+
 
     def move(self, dx, dy):
         if dx or dy:
@@ -118,6 +123,7 @@ class Ship(Entity):
         self.x += self.vel[0]
         self.y += self.vel[1]
 
+
     def aimTo(self, x, y):
         self.aim = [x - self.x, y - self.y]
 
@@ -138,8 +144,11 @@ class Ship(Entity):
             if angle < self.weapon_angle:
                 self.weapon_angle -= 9
 
-    def shoot(self):
-        ...
+
+    def shoot(self, bullets: list, bank: dict, time: int):
+        if time - self.last_shot > 12 / (self.level + 1):
+            self.last_shot = time
+            bullets.append(Bullet([self.x, self.y], [-sin(self.weapon_angle * pi / 180), -cos(self.weapon_angle * pi / 180)], bank, time))
 
 
 class Enemy(Entity):
@@ -148,7 +157,6 @@ class Enemy(Entity):
         self.type = _type
         self.body_angle = 0
         self.anim_img = 0
-
 
     def animate(self, time: int):
         t = (time - self.creation_time)
@@ -164,8 +172,32 @@ class Enemy(Entity):
         t = (time - self.creation_time) / 30
         self.x = W / 2 + sin(t) * W / 3
         self.y = (H / 2) - (cos(t/5) * H * 0.6) + (cos(t * 3) * H / 15)
-        
 
+
+class Bullet(Entity):
+    def __init__(self, pos: tuple, vel: tuple, bank: dict, creation_time: int = 0):
+        super(Bullet, self).__init__(pos, bank['player'], 'bullet_0', creation_time)
+        self.anim_img = 0
+        self.vel = vel
+
+        for i in range(3):
+            self.move()
+    
+
+    def show(self, s: pg.Surface, scale: float = 1):
+        self.draw(s, f'bullet_{self.anim_img}', self.body_angle, scale)
+
+
+    def animate(self, time: int):
+        t = (time - self.creation_time)
+        self.anim_img = t % 4
+        if t > 100:
+            self.alive = False
+
+
+    def move(self):
+        self.x += self.vel[0] * 15
+        self.y += self.vel[1] * 15
 
 class Star:
     def __init__(self, W: int, H: int, scale: float):

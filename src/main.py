@@ -49,6 +49,7 @@ if __name__ == "__main__":
 	
 	player = Ship([SCREEN_W // 2, SCREEN_H // 2], images)
 	enemies = []
+	bullets = []
 	stars = [Star(SCREEN_W, SCREEN_H, SCALE) for i in range(100)]
 
 	cursor = 0
@@ -101,18 +102,33 @@ if __name__ == "__main__":
 			player.aimTo(*mouse_pos)
 
 			if mouse_press:
-				player.shoot()
+				player.shoot(bullets, images, time)
 
 			if time % 50 == 0 and len(enemies) < 6:
 				enemies.append(Enemy((SCREEN_W // 2, -50), images, creation_time = time))
 
+		temp = []
 		for enemy in enemies:
 			enemy.move(time, SCREEN_W, SCREEN_H)
 			enemy.animate(time)
 			enemy.show(SCREEN, SCALE)
 
+			if (enemy.alive):
+				temp.append(enemy)
+		enemies = temp
+
 		player.move(*direction)
 		player.animate(time)
 		player.show(SCREEN, SCALE)
+
+		temp = []
+		for bullet in bullets:
+			bullet.move()
+			bullet.animate(time)
+			bullet.show(SCREEN, SCALE)
+
+			if (bullet.alive):
+				temp.append(bullet)
+		bullets = temp
 		
 		pg.display.update()
