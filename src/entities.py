@@ -9,6 +9,7 @@ class Entity:
         self.act_img = act_img
         self.body_angle = 0
         self.creation_time = creation_time
+        self.health = 10
         self.alive = True
 
     @staticmethod
